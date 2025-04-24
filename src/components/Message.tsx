@@ -13,10 +13,10 @@ const Message = ({ text, isSender, image, timestamp }: MessageProps) => {
     <div className={`flex ${isSender ? 'justify-end' : 'justify-start'}`}>
       <div className={`max-w-[80%] ${isSender ? 'order-last' : 'order-first'}`}>
         <div
-          className={`rounded-2xl p-3 ${
+          className={`rounded-3xl p-3 max-w-[250px] ${
             isSender
-              ? 'bg-[#FEF7CD] text-black'
-              : 'bg-gray-100 text-black'
+              ? 'bg-[#DCF8C6] text-black'
+              : 'bg-white text-black border border-gray-200'
           }`}
         >
           <p className="text-[15px]">{text}</p>
@@ -31,7 +31,7 @@ const Message = ({ text, isSender, image, timestamp }: MessageProps) => {
           </div>
         )}
         {timestamp && (
-          <div className="text-xs text-gray-500 mt-1">
+          <div className="text-xs text-gray-500 mt-1 text-right">
             {timestamp}
           </div>
         )}

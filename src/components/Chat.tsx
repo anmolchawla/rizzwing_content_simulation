@@ -47,7 +47,7 @@ const Chat = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-100 max-w-md mx-auto">
+    <div className="flex flex-col h-screen bg-[#F5F5F5] max-w-md mx-auto">
       <div className="bg-white p-4 shadow-sm">
         <h1 className="text-xl font-semibold text-center">Chat Replay</h1>
       </div>
