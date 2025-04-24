@@ -15,8 +15,8 @@ const Message = ({ text, isSender, image, timestamp }: MessageProps) => {
         <div
           className={`rounded-3xl p-3 max-w-[250px] ${
             isSender
-              ? 'bg-[#DCF8C6] text-black'
-              : 'bg-white text-black border border-gray-200'
+              ? 'bg-[#FEF7CD] text-black'
+              : 'bg-gray-100 text-black border border-gray-200'
           }`}
         >
           <p className="text-[15px]">{text}</p>

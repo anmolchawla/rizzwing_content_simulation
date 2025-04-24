@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -47,7 +46,7 @@ const Chat = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-[#F5F5F5] max-w-md mx-auto">
+    <div className="flex flex-col h-screen bg-white max-w-md mx-auto">
       <div className="bg-white p-4 shadow-sm">
         <h1 className="text-xl font-semibold text-center">Chat Replay</h1>
       </div>
