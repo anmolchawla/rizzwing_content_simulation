@@ -89,8 +89,24 @@ export default {
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out'
+			},
+			clipPath: {
+				'message-right': 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 0 0, 100% 0, 100% 8px, 0 8px)',
+				'message-left': 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 0 0, 0 8px, 100% 8px, 100% 0)',
 			}
 		}
 	},
-	plugins: [require("tailwindcss-animate")],
+	plugins: [
+		require("tailwindcss-animate"),
+		function({ addUtilities }) {
+			addUtilities({
+				'.clip-message-right': {
+					clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 0 0, 100% 0, 100% 8px, 0 8px)'
+				},
+				'.clip-message-left': {
+					clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 0 0, 0 8px, 100% 8px, 100% 0)'
+				}
+			})
+		}
+	]
 } satisfies Config;
