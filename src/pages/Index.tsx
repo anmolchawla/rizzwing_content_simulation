@@ -7,7 +7,7 @@ const Index = () => {
   return (
     <Tabs defaultValue="default" className="w-full">
       <TabsList className="grid w-full grid-cols-2">
-        <TabsTrigger value="default">Default Chat</TabsTrigger>
+        <TabsTrigger value="default">Bumble</TabsTrigger>
         <TabsTrigger value="whatsapp">WhatsApp</TabsTrigger>
       </TabsList>
       <TabsContent value="default">

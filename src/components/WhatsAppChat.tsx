@@ -67,7 +67,7 @@ const WhatsAppChat = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-[#0c1317]">
+    <div className="flex flex-col h-[600px] max-w-[800px] mx-auto bg-[#0c1317]">
       <div className="bg-[#1f2c34] p-4 shadow-sm">
         <h1 className="text-xl font-semibold text-center text-white">WhatsApp Chat</h1>
       </div>
