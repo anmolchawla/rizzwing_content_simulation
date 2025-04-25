@@ -17,13 +17,13 @@ const WhatsAppMessage = ({ text, isSender, image, timestamp, isRead }: MessagePr
         <div
           className={`relative p-3 max-w-[250px] ${
             isSender
-              ? 'bg-[#dcf8c6] text-black rounded-tl-lg rounded-tr-lg rounded-bl-lg before:absolute before:bottom-0 before:right-0 before:border-[6px] before:border-transparent before:border-t-[#dcf8c6] before:translate-y-[5px]'
-              : 'bg-white text-black rounded-tl-lg rounded-tr-lg rounded-br-lg before:absolute before:bottom-0 before:left-0 before:border-[6px] before:border-transparent before:border-t-white before:translate-y-[5px]'
+              ? 'bg-[#075e54] text-white rounded-tl-2xl rounded-tr-2xl rounded-bl-2xl before:absolute before:bottom-0 before:right-0 before:border-[6px] before:border-transparent before:border-t-[#075e54] before:translate-y-[5px]'
+              : 'bg-[#1f2c34] text-white rounded-tl-2xl rounded-tr-2xl rounded-br-2xl before:absolute before:bottom-0 before:left-0 before:border-[6px] before:border-transparent before:border-t-[#1f2c34] before:translate-y-[5px]'
           }`}
         >
           <p className="text-[15px]">{text}</p>
           <div className="flex items-center justify-end gap-1 mt-1">
-            <span className="text-[11px] text-gray-500">{timestamp}</span>
+            <span className="text-[11px] text-gray-300">{timestamp}</span>
             {isSender && (
               <div className="flex">
                 {isRead ? (

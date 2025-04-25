@@ -4,7 +4,6 @@ import { Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import WhatsAppMessage from './WhatsAppMessage';
 import { Card } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface ChatMessage {
   text: string;
@@ -60,12 +59,20 @@ const WhatsAppChat = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-[url('/photo-1470813740244-df37b8c1edcb')] bg-cover bg-center max-w-md mx-auto">
-      <div className="bg-[#075e54] p-4 shadow-sm">
+    <div className="flex flex-col h-screen bg-[#0c1317]">
+      <div className="bg-[#1f2c34] p-4 shadow-sm">
         <h1 className="text-xl font-semibold text-center text-white">WhatsApp Chat</h1>
       </div>
       
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div 
+        className="flex-1 overflow-y-auto p-4 space-y-4"
+        style={{
+          backgroundImage: "url('/lovable-uploads/fb640952-030e-46b2-925d-ca7c9cf40b71.png')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
         {messages.map((message, index) => (
           <WhatsAppMessage
             key={index}
@@ -78,24 +85,24 @@ const WhatsAppChat = () => {
         ))}
       </div>
 
-      <Card className="p-4 border-t bg-[#f0f2f5]">
+      <Card className="p-4 border-t bg-[#1f2c34] rounded-none">
         <div className="flex flex-col gap-4">
           <input
             type="file"
             ref={fileInputRef}
             onChange={handleFileUpload}
             accept=".json"
-            className="block w-full text-sm text-gray-500
+            className="block w-full text-sm text-gray-300
               file:mr-4 file:py-2 file:px-4
               file:rounded-full file:border-0
               file:text-sm file:font-semibold
-              file:bg-primary file:text-white
-              hover:file:bg-primary/90"
+              file:bg-[#075e54] file:text-white
+              hover:file:bg-[#128c7e]"
           />
           <Button
             onClick={playConversation}
             disabled={isPlaying || script.length === 0}
-            className="w-full flex items-center justify-center gap-2 bg-[#128c7e] hover:bg-[#075e54]"
+            className="w-full flex items-center justify-center gap-2 bg-[#075e54] hover:bg-[#128c7e] text-white"
           >
             <Play className="w-4 h-4" />
             {isPlaying ? "Playing..." : "Play Conversation"}
