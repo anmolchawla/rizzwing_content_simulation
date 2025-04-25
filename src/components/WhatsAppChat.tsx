@@ -26,7 +26,15 @@ const WhatsAppChat = () => {
       reader.onload = (e) => {
         try {
           const content = JSON.parse(e.target?.result as string);
-          setScript(content);
+          const messagesWithTimestamp = content.map((msg: ChatMessage) => ({
+            ...msg,
+            timestamp: msg.timestamp || new Date().toLocaleTimeString('en-US', {
+              hour: 'numeric',
+              minute: 'numeric',
+              hour12: true
+            }).toUpperCase(),
+          }));
+          setScript(messagesWithTimestamp);
         } catch (error) {
           console.error("Error parsing JSON file:", error);
         }
