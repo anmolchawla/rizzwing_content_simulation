@@ -67,10 +67,10 @@ const WhatsAppChat = () => {
       <div 
         className="flex-1 overflow-y-auto p-4 space-y-4"
         style={{
-          backgroundImage: "url('/lovable-uploads/fb640952-030e-46b2-925d-ca7c9cf40b71.png')",
+          backgroundImage: "url('https://w0.peakpx.com/wallpaper/557/521/HD-wallpaper-whatsapp-v-background-doodle-pattern-patterns-whatsapp.jpg')",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat'
+          backgroundRepeat: 'repeat'
         }}
       >
         {messages.map((message, index) => (
