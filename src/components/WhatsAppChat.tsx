@@ -5,7 +5,6 @@ import WhatsAppMessage from './WhatsAppMessage';
 import WhatsAppHeader from './WhatsAppHeader';
 import { Card } from '@/components/ui/card';
 import { Plus, Camera, Mic } from 'react-feather';
-import { Sticker } from 'lucide-react';
 
 interface ChatMessage {
   text?: string;
@@ -16,22 +15,12 @@ interface ChatMessage {
   location?: string;
 }
 
-interface ChatScript {
-  messages: ChatMessage[];
-}
-
 const WhatsAppChat = () => {
+  const [scripts, setScripts] = useState<ChatMessage[][]>([]);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [script, setScript] = useState<ChatMessage[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  // Debug effect to monitor script state
-  useEffect(() => {
-    console.log('Current script state:', script);
-    console.log('Script length:', script.length);
-  }, [script]);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -50,81 +39,89 @@ const WhatsAppChat = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    console.log('File selected:', file.name);
-    
     try {
       const fileContent = await file.text();
-      console.log('Raw file content:', fileContent);
-      
       const content = JSON.parse(fileContent);
-      console.log('Parsed content:', content);
-      
-      if (!content.messages || !Array.isArray(content.messages)) {
-        console.error('Invalid JSON structure: missing messages array');
-        alert('Invalid chat file format. File must contain a messages array.');
-        resetFileInput();
-        return;
-      }
 
-      const messagesWithTimestamp = content.messages.map((msg: ChatMessage) => ({
-        ...msg,
-        timestamp: msg.timestamp || new Date().toLocaleTimeString('en-US', {
-          hour: 'numeric',
-          minute: 'numeric',
-          hour12: true
-        }).toUpperCase(),
-      }));
-      
-      console.log('Processed messages:', messagesWithTimestamp);
-      console.log('Number of messages:', messagesWithTimestamp.length);
-      
-      // Reset existing messages and script
+      // Debug: log the parsed content
+      console.log('Parsed content:', content);
+
+      // Accept both array of scripts and single script object
+      const scriptsArray = Array.isArray(content) ? content : [content];
+
+      // Validate and normalize each script
+      const normalizedScripts = scriptsArray.map((scriptObj, idx) => {
+        if (
+          !scriptObj ||
+          typeof scriptObj !== 'object' ||
+          !Array.isArray(scriptObj.messages)
+        ) {
+          throw new Error(`Script at index ${idx} is missing a valid messages array`);
+        }
+        return scriptObj.messages.map((msg: ChatMessage) => ({
+          ...msg,
+          timestamp: msg.timestamp || new Date().toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: true
+          }).toUpperCase(),
+        }));
+      });
+
+      setScripts(normalizedScripts);
       setMessages([]);
-      setScript(messagesWithTimestamp);
-      
-    } catch (error) {
-      console.error("Error processing file:", error);
-      alert("Error loading the chat file. Please make sure it's a valid JSON file.");
+    } catch (error: any) {
+      alert(error.message || "Error loading the chat file. Please make sure it's a valid JSON file.");
       resetFileInput();
     }
   };
 
   const playConversation = async () => {
-    console.log('Starting playback with script:', script);
-    if (script.length === 0) {
-      console.log('No messages to play');
-      alert("No messages to play. Please upload a valid chat file first.");
+    if (!scripts.length) {
+      alert("No scripts to play. Please upload a valid chat file first.");
       return;
     }
-
     setIsPlaying(true);
     setMessages([]);
-    
     try {
-      let lastMessage: ChatMessage | null = null;
-      
-      for (const message of script) {
-        console.log('Playing message:', message);
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        if (lastMessage && lastMessage.isSender && !message.isSender) {
-          setMessages(prev => prev.map(msg => 
-            msg === lastMessage ? { ...msg, isRead: true } : msg
-          ));
+      for (let scriptIdx = 0; scriptIdx < scripts.length; scriptIdx++) {
+        const script = scripts[scriptIdx];
+        let lastMessage: ChatMessage | null = null;
+        for (const message of script) {
+          await new Promise(resolve => setTimeout(resolve, 3000));
+          if (lastMessage && lastMessage.isSender && !message.isSender) {
+            setMessages(prev =>
+              prev.map(msg =>
+                msg === lastMessage ? { ...msg, isRead: true } : msg
+              )
+            );
+          }
+          setMessages(prev => [...prev, message]);
+          lastMessage = message;
         }
-        
-        setMessages(prev => [...prev, message]);
-        lastMessage = message;
-      }
-      
-      // Mark the last message as read if it's a sender message
-      if (lastMessage?.isSender) {
-        setMessages(prev => prev.map(msg => 
-          msg === lastMessage ? { ...msg, isRead: true } : msg
-        ));
+        // Mark the last message as read if it's a sender message
+        if (lastMessage?.isSender) {
+          setMessages(prev =>
+            prev.map(msg =>
+              msg === lastMessage ? { ...msg, isRead: true } : msg
+            )
+          );
+        }
+        // Add a separator between scripts, except after the last one
+        if (scriptIdx < scripts.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 3000));
+          setMessages(prev => [
+            ...prev,
+            {
+              text: "--- End of Script ---",
+              isSender: false,
+              timestamp: "",
+            }
+          ]);
+          await new Promise(resolve => setTimeout(resolve, 3000));
+        }
       }
     } catch (error) {
-      console.error('Error during playback:', error);
       alert("Error playing the conversation. Please try again.");
     } finally {
       setIsPlaying(false);
@@ -197,7 +194,7 @@ const WhatsAppChat = () => {
           />
           <Button
             onClick={playConversation}
-            disabled={isPlaying || script.length === 0}
+            disabled={isPlaying || scripts.length === 0}
             className="w-full flex items-center justify-center gap-2 bg-[#075e54] hover:bg-[#128c7e] text-white"
           >
             <Play className="w-4 h-4" />
