@@ -20,7 +20,7 @@ interface ChatScript {
 const Chat = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [script, setScript] = useState<ChatMessage[]>([]);
+  const [scripts, setScripts] = useState<ChatMessage[][]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -37,25 +37,30 @@ const Chat = () => {
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      setMessages([]);
       const reader = new FileReader();
       reader.onload = (e) => {
         try {
-          const content: ChatScript = JSON.parse(e.target?.result as string);
-          if (!content.messages || !Array.isArray(content.messages)) {
-            console.error("Invalid JSON structure: missing messages array");
-            return;
-          }
-          // Filter out messages that have images or image-related text
-          const textMessages = content.messages.filter(msg => {
-            if (!msg.text) return false;
-            // Skip messages that mention images or are image-related
-            const lowerText = msg.text.toLowerCase();
-            return !lowerText.includes('image') && 
-                   !lowerText.includes('photo') && 
-                   !lowerText.includes('picture') &&
-                   !lowerText.includes('give me an opening line');
+          const content = JSON.parse(e.target?.result as string);
+          // Accept both array of scripts and single script object
+          const scriptsArray = Array.isArray(content) ? content : [content];
+          // Flatten all messages into arrays per script
+          const normalizedScripts = scriptsArray.map((scriptObj, idx) => {
+            if (!scriptObj || typeof scriptObj !== 'object' || !Array.isArray(scriptObj.messages)) {
+              console.error(`Script at index ${idx} is missing a valid messages array`);
+              return [];
+            }
+            // Filter out messages that have images or image-related text
+            return scriptObj.messages.filter(msg => {
+              if (!msg.text) return false;
+              const lowerText = msg.text.toLowerCase();
+              return !lowerText.includes('image') && 
+                     !lowerText.includes('photo') && 
+                     !lowerText.includes('picture') &&
+                     !lowerText.includes('give me an opening line');
+            });
           });
-          setScript(textMessages);
+          setScripts(normalizedScripts);
         } catch (error) {
           console.error("Error parsing JSON file:", error);
         }
@@ -65,15 +70,33 @@ const Chat = () => {
   };
 
   const playConversation = async () => {
+    if (!scripts.length) return;
     setIsPlaying(true);
-    setMessages([]);
-    
-    for (const message of script) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setMessages(prev => [...prev, message]);
+    try {
+      for (let scriptIdx = 0; scriptIdx < scripts.length; scriptIdx++) {
+        setMessages([]); // Clear chat before each script
+        const script = scripts[scriptIdx];
+        for (const message of script) {
+          await new Promise(resolve => setTimeout(resolve, 3000));
+          setMessages(prev => [...prev, message]);
+        }
+        // Add a separator between scripts, except after the last one
+        if (scriptIdx < scripts.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 3000));
+          setMessages(prev => [
+            ...prev,
+            {
+              text: "--- End of Script ---",
+              isSender: false,
+              timestamp: "",
+            }
+          ]);
+          await new Promise(resolve => setTimeout(resolve, 3000));
+        }
+      }
+    } finally {
+      setIsPlaying(false);
     }
-    
-    setIsPlaying(false);
   };
 
   return (
@@ -152,11 +175,11 @@ const Chat = () => {
           />
           <Button
             onClick={playConversation}
-            disabled={isPlaying || script.length === 0}
+            disabled={isPlaying || scripts.length === 0 || scripts.every(s => s.length === 0)}
             className="w-full flex items-center justify-center gap-2"
           >
             <Play className="w-4 h-4" />
-            {isPlaying ? "Playing..." : `Play Conversation (${script.length} messages)`}
+            {isPlaying ? "Playing..." : `Play Conversation (${scripts.reduce((acc, s) => acc + s.length, 0)} messages)`}
           </Button>
         </div>
       </Card>

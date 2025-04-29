@@ -39,6 +39,8 @@ const WhatsAppChat = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    setMessages([]); // Clear previous chat on new upload
+
     try {
       const fileContent = await file.text();
       const content = JSON.parse(fileContent);
@@ -48,9 +50,12 @@ const WhatsAppChat = () => {
 
       // Accept both array of scripts and single script object
       const scriptsArray = Array.isArray(content) ? content : [content];
+      console.log('Scripts array length:', scriptsArray.length);
 
       // Validate and normalize each script
       const normalizedScripts = scriptsArray.map((scriptObj, idx) => {
+        console.log(`Processing script ${idx}:`, scriptObj);
+        
         if (
           !scriptObj ||
           typeof scriptObj !== 'object' ||
@@ -58,7 +63,8 @@ const WhatsAppChat = () => {
         ) {
           throw new Error(`Script at index ${idx} is missing a valid messages array`);
         }
-        return scriptObj.messages.map((msg: ChatMessage) => ({
+
+        const processedMessages = scriptObj.messages.map((msg: ChatMessage) => ({
           ...msg,
           timestamp: msg.timestamp || new Date().toLocaleTimeString('en-US', {
             hour: 'numeric',
@@ -66,29 +72,40 @@ const WhatsAppChat = () => {
             hour12: true
           }).toUpperCase(),
         }));
+
+        console.log(`Processed messages for script ${idx}:`, processedMessages);
+        return processedMessages;
       });
 
+      console.log('Final normalized scripts:', normalizedScripts);
       setScripts(normalizedScripts);
-      setMessages([]);
+      
+      // Debug: Verify scripts were set
+      console.log('Scripts state after setting:', normalizedScripts.length);
     } catch (error: any) {
+      console.error('Error processing file:', error);
       alert(error.message || "Error loading the chat file. Please make sure it's a valid JSON file.");
       resetFileInput();
     }
   };
 
   const playConversation = async () => {
+    console.log('Starting playConversation. Scripts length:', scripts.length);
     if (!scripts.length) {
+      console.log('No scripts to play');
       alert("No scripts to play. Please upload a valid chat file first.");
       return;
     }
     setIsPlaying(true);
-    setMessages([]);
     try {
       for (let scriptIdx = 0; scriptIdx < scripts.length; scriptIdx++) {
+        // Clear chat before each script
+        setMessages([]);
         const script = scripts[scriptIdx];
         let lastMessage: ChatMessage | null = null;
         for (const message of script) {
-          await new Promise(resolve => setTimeout(resolve, 3000));
+          console.log('Playing message:', message);
+          await new Promise(resolve => setTimeout(resolve, 4000));
           if (lastMessage && lastMessage.isSender && !message.isSender) {
             setMessages(prev =>
               prev.map(msg =>
@@ -109,7 +126,8 @@ const WhatsAppChat = () => {
         }
         // Add a separator between scripts, except after the last one
         if (scriptIdx < scripts.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, 3000));
+          console.log('Adding separator after script', scriptIdx);
+          await new Promise(resolve => setTimeout(resolve, 4000));
           setMessages(prev => [
             ...prev,
             {
@@ -118,15 +136,22 @@ const WhatsAppChat = () => {
               timestamp: "",
             }
           ]);
-          await new Promise(resolve => setTimeout(resolve, 3000));
+          await new Promise(resolve => setTimeout(resolve, 4000));
         }
       }
     } catch (error) {
+      console.error('Error during playback:', error);
       alert("Error playing the conversation. Please try again.");
     } finally {
+      console.log('Playback completed');
       setIsPlaying(false);
     }
   };
+
+  // Debug effect to monitor scripts state
+  useEffect(() => {
+    console.log('Scripts state changed:', scripts.length);
+  }, [scripts]);
 
   return (
     <div className="flex flex-col h-screen bg-[#0c1317] max-w-md mx-auto overflow-hidden">
