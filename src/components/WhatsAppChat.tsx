@@ -1,15 +1,23 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import WhatsAppMessage from './WhatsAppMessage';
+import WhatsAppHeader from './WhatsAppHeader';
 import { Card } from '@/components/ui/card';
+import { Plus, Camera, Mic } from 'react-feather';
+import { Sticker } from 'lucide-react';
 
 interface ChatMessage {
-  text: string;
+  text?: string;
   isSender: boolean;
   image?: string;
   timestamp?: string;
   isRead?: boolean;
+  location?: string;
+}
+
+interface ChatScript {
+  messages: ChatMessage[];
 }
 
 const WhatsAppChat = () => {
@@ -17,62 +25,120 @@ const WhatsAppChat = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [script, setScript] = useState<ChatMessage[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  // Debug effect to monitor script state
+  useEffect(() => {
+    console.log('Current script state:', script);
+    console.log('Script length:', script.length);
+  }, [script]);
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]);
+
+  const resetFileInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const content = JSON.parse(e.target?.result as string);
-          const messagesWithTimestamp = content.map((msg: ChatMessage) => ({
-            ...msg,
-            timestamp: msg.timestamp || new Date().toLocaleTimeString('en-US', {
-              hour: 'numeric',
-              minute: 'numeric',
-              hour12: true
-            }).toUpperCase(),
-          }));
-          setScript(messagesWithTimestamp);
-        } catch (error) {
-          console.error("Error parsing JSON file:", error);
-        }
-      };
-      reader.readAsText(file);
+    if (!file) return;
+
+    console.log('File selected:', file.name);
+    
+    try {
+      const fileContent = await file.text();
+      console.log('Raw file content:', fileContent);
+      
+      const content = JSON.parse(fileContent);
+      console.log('Parsed content:', content);
+      
+      if (!content.messages || !Array.isArray(content.messages)) {
+        console.error('Invalid JSON structure: missing messages array');
+        alert('Invalid chat file format. File must contain a messages array.');
+        resetFileInput();
+        return;
+      }
+
+      const messagesWithTimestamp = content.messages.map((msg: ChatMessage) => ({
+        ...msg,
+        timestamp: msg.timestamp || new Date().toLocaleTimeString('en-US', {
+          hour: 'numeric',
+          minute: 'numeric',
+          hour12: true
+        }).toUpperCase(),
+      }));
+      
+      console.log('Processed messages:', messagesWithTimestamp);
+      console.log('Number of messages:', messagesWithTimestamp.length);
+      
+      // Reset existing messages and script
+      setMessages([]);
+      setScript(messagesWithTimestamp);
+      
+    } catch (error) {
+      console.error("Error processing file:", error);
+      alert("Error loading the chat file. Please make sure it's a valid JSON file.");
+      resetFileInput();
     }
   };
 
   const playConversation = async () => {
+    console.log('Starting playback with script:', script);
+    if (script.length === 0) {
+      console.log('No messages to play');
+      alert("No messages to play. Please upload a valid chat file first.");
+      return;
+    }
+
     setIsPlaying(true);
     setMessages([]);
     
-    let lastMessage: ChatMessage | null = null;
-    
-    for (const message of script) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      let lastMessage: ChatMessage | null = null;
       
-      // If the last message was from sender and current is not, mark last as read
-      if (lastMessage && lastMessage.isSender && !message.isSender) {
+      for (const message of script) {
+        console.log('Playing message:', message);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        if (lastMessage && lastMessage.isSender && !message.isSender) {
+          setMessages(prev => prev.map(msg => 
+            msg === lastMessage ? { ...msg, isRead: true } : msg
+          ));
+        }
+        
+        setMessages(prev => [...prev, message]);
+        lastMessage = message;
+      }
+      
+      // Mark the last message as read if it's a sender message
+      if (lastMessage?.isSender) {
         setMessages(prev => prev.map(msg => 
           msg === lastMessage ? { ...msg, isRead: true } : msg
         ));
       }
-      
-      setMessages(prev => [...prev, message]);
-      lastMessage = message;
+    } catch (error) {
+      console.error('Error during playback:', error);
+      alert("Error playing the conversation. Please try again.");
+    } finally {
+      setIsPlaying(false);
     }
-    
-    setIsPlaying(false);
   };
 
   return (
-    <div className="flex flex-col h-screen bg-[#0c1317] max-w-md mx-auto">
-      <div className="bg-[#1f2c34] p-4 shadow-sm">
-        <h1 className="text-xl font-semibold text-center text-white">WhatsApp Chat</h1>
-      </div>
-      
+    <div className="flex flex-col h-screen bg-[#0c1317] max-w-md mx-auto overflow-hidden">
+      <WhatsAppHeader 
+        profileImage="https://rizzwing.pro/logo_dark.png"
+        name="RizzWing"
+      />
       <div 
-        className="flex-1 overflow-y-auto p-4 space-y-4"
+        className="flex-1 overflow-y-auto"
         style={{
           backgroundImage: "url('https://w0.peakpx.com/wallpaper/557/521/HD-wallpaper-whatsapp-v-background-doodle-pattern-patterns-whatsapp.jpg')",
           backgroundSize: 'cover',
@@ -80,18 +146,41 @@ const WhatsAppChat = () => {
           backgroundRepeat: 'repeat'
         }}
       >
-        {messages.map((message, index) => (
-          <WhatsAppMessage
-            key={index}
-            text={message.text}
-            isSender={message.isSender}
-            image={message.image}
-            timestamp={message.timestamp}
-            isRead={message.isRead}
-          />
-        ))}
+        <div className="p-4 space-y-4">
+          {messages.map((message, index) => (
+            <WhatsAppMessage
+              key={index}
+              text={message.text}
+              isSender={message.image ? true : !message.isSender}
+              image={message.image}
+              timestamp={message.timestamp}
+              isRead={message.isRead}
+              location={message.location}
+            />
+          ))}
+          <div ref={messagesEndRef} />
+        </div>
       </div>
-
+      {/* WhatsApp-style footer */}
+      <div className="w-full px-4 py-2 bg-[#fef7ea] flex items-center gap-3">
+        <button className="p-0">
+          <Plus size={28} className="text-black" />
+        </button>
+        <div className="flex-1 relative">
+          <input
+            type="text"
+            placeholder=""
+            className="w-full rounded-full bg-white border border-[#e0e0e0] pl-4 pr-4 py-2 text-base text-black outline-none"
+            disabled
+          />
+        </div>
+        <button className="p-0">
+          <Camera size={26} className="text-black" />
+        </button>
+        <button className="p-0">
+          <Mic size={26} className="text-black" />
+        </button>
+      </div>
       <Card className="p-4 border-t bg-[#1f2c34] rounded-none">
         <div className="flex flex-col gap-4">
           <input

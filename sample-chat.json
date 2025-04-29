@@ -1,0 +1,45 @@
+{
+  "messages": [
+    {
+      "text": "Hey! Are you at the office?",
+      "isSender": false,
+      "timestamp": "2:10 PM"
+    },
+    {
+      "text": "Just reached",
+      "isSender": true,
+      "timestamp": "2:11 PM",
+      "isRead": true
+    },
+    {
+      "image": "https://images.unsplash.com/photo-1565108445419-760d3f5c75b5?w=800&auto=format&fit=crop&q=60",
+      "location": "My location",
+      "isSender": true,
+      "timestamp": "2:12 PM",
+      "isRead": true
+    },
+    {
+      "text": "Perfect! I'll be there in 10",
+      "isSender": false,
+      "timestamp": "2:12 PM"
+    },
+    {
+      "text": "Sounds good 👍",
+      "isSender": true,
+      "timestamp": "2:13 PM",
+      "isRead": true
+    },
+    {
+      "image": "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&auto=format&fit=crop&q=60",
+      "text": "Meeting room is ready",
+      "isSender": true,
+      "timestamp": "2:15 PM",
+      "isRead": true
+    },
+    {
+      "text": "Great! See you in the conference room",
+      "isSender": false,
+      "timestamp": "2:16 PM"
+    }
+  ]
+} 
