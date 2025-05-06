@@ -1,6 +1,7 @@
 import React from 'react';
 import { Check } from 'lucide-react';
 import { MapPin } from 'lucide-react';
+import Emoji, { Twemoji } from 'react-emoji-render';
 
 interface ChatMessage {
   text?: string;
@@ -11,7 +12,14 @@ interface ChatMessage {
   location?: string;
 }
 
-const WhatsAppMessage = ({ text, isSender, image, timestamp, isRead, location }: ChatMessage) => {
+const WhatsAppMessage = ({
+  text,
+  isSender,
+  image,
+  timestamp,
+  isRead,
+  location,
+}: ChatMessage) => {
   return (
     <div className={`flex ${isSender ? 'justify-end' : 'justify-start'} mb-1`}>
       <div className={`max-w-[65%] ${isSender ? 'order-last' : 'order-first'}`}>
@@ -25,16 +33,16 @@ const WhatsAppMessage = ({ text, isSender, image, timestamp, isRead, location }:
           {image && (
             <div className={`p-[2px] ${text ? '-mb-[2px]' : ''}`}>
               <div className="overflow-hidden">
-                <img 
-                  src={image} 
-                  alt="Shared content" 
+                <img
+                  src={image}
+                  alt="Shared content"
                   className="w-full object-cover max-h-[300px] rounded-[14px]"
                 />
               </div>
             </div>
           )}
           {(text || location) && (
-            <div className="px-3 py-[6px]">
+            <div className="">
               <div className="relative min-w-[128px]">
                 {location && (
                   <div className="flex items-center text-[#1a7aed] mb-1">
@@ -42,24 +50,45 @@ const WhatsAppMessage = ({ text, isSender, image, timestamp, isRead, location }:
                     <span className="font-medium">{location}</span>
                   </div>
                 )}
-                <div className="flex flex-wrap items-end gap-2">
-                  <div className="text-[15px] whitespace-pre-wrap break-words flex-1 pr-2" style={{ wordBreak: 'break-word' }}>
-                    {text}
-                  </div>
-                  <div className="flex items-center flex-shrink-0 self-end text-[11px] text-[#667781]">
+                <div className="relative p-2">
+                  <div className="absolute bottom-1 right-2 flex items-center text-[11px] text-[#667781] whitespace-nowrap">
                     <span>{timestamp}</span>
                     {isSender && (
-                      <div className="ml-[2px] relative" style={{ width: '21px', height: '13px' }}>
-                        <Check 
-                          className="absolute right-0 z-[1] w-[13px] h-[13px] text-[#1a7aed]" 
+                      <div
+                        className="ml-[2px] relative"
+                        style={{ width: '21px', height: '13px' }}
+                      >
+                        <Check
+                          className="absolute right-0 z-[1] w-[13px] h-[13px] text-[#1a7aed]"
                           style={{ strokeWidth: 3 }}
                         />
-                        <Check 
+                        <Check
                           className="absolute right-0 z-[2] w-[13px] h-[13px] text-[#1a7aed]"
-                          style={{ transform: 'translateX(-5px)', strokeWidth: 3 }}
+                          style={{
+                            transform: 'translateX(-5px)',
+                            strokeWidth: 3,
+                          }}
                         />
                       </div>
                     )}
+                  </div>
+
+                  {/* Text with inline-block span for the timestamp space */}
+                  <div
+                    className="text-[15px] whitespace-pre-wrap break-words font-[-apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui]"
+                    style={{ wordBreak: 'break-word' }}
+                  >
+                    {text && (
+                      <Twemoji
+                        svg
+                        text={text}
+                        options={{
+                          className: 'inline',
+                        }}
+                      />
+                    )}
+                    {/* Invisible spacer element that keeps space for the timestamp */}
+                    <span className="inline-block w-[65px] h-[16px]"></span>
                   </div>
                 </div>
               </div>
