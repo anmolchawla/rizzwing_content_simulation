@@ -105,7 +105,7 @@ const WhatsAppChat = () => {
         let lastMessage: ChatMessage | null = null;
         for (const message of script) {
           console.log('Playing message:', message);
-          await new Promise(resolve => setTimeout(resolve, 4000));
+          await new Promise(resolve => setTimeout(resolve, 1500));
           if (lastMessage && lastMessage.isSender && !message.isSender) {
             setMessages(prev =>
               prev.map(msg =>
@@ -127,7 +127,7 @@ const WhatsAppChat = () => {
         // Add a separator between scripts, except after the last one
         if (scriptIdx < scripts.length - 1) {
           console.log('Adding separator after script', scriptIdx);
-          await new Promise(resolve => setTimeout(resolve, 4000));
+          await new Promise(resolve => setTimeout(resolve, 1500));
           setMessages(prev => [
             ...prev,
             {
@@ -136,7 +136,7 @@ const WhatsAppChat = () => {
               timestamp: "",
             }
           ]);
-          await new Promise(resolve => setTimeout(resolve, 4000));
+          await new Promise(resolve => setTimeout(resolve, 1500));
         }
       }
     } catch (error) {
@@ -165,9 +165,18 @@ const WhatsAppChat = () => {
           backgroundImage: "url('https://w0.peakpx.com/wallpaper/557/521/HD-wallpaper-whatsapp-v-background-doodle-pattern-patterns-whatsapp.jpg')",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          backgroundRepeat: 'repeat'
+          backgroundRepeat: 'repeat',
+          scrollbarWidth: 'none',  /* Firefox */
+          msOverflowStyle: 'none'  /* IE and Edge */
         }}
       >
+        <style>
+          {`
+            .flex-1::-webkit-scrollbar {
+              display: none;  /* Chrome, Safari and Opera */
+            }
+          `}
+        </style>
         <div className="p-4 space-y-4">
           {messages.map((message, index) => (
             <WhatsAppMessage
