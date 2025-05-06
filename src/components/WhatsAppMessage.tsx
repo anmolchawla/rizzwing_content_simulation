@@ -88,7 +88,7 @@ const WhatsAppMessage = ({
                       />
                     )}
                     {/* Invisible spacer element that keeps space for the timestamp */}
-                    <span className="inline-block w-[65px] h-[16px]"></span>
+                    <span className="inline-block w-[70px] h-[16px]"></span>
                   </div>
                 </div>
               </div>
