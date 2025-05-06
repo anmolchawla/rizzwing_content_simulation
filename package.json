@@ -71,6 +71,7 @@
     "typescript": "^5.5.3",
     "vaul": "^0.9.3",
     "vite": "^5.4.1",
+    "vite_react_shadcn_ts": "file:",
     "zod": "^3.23.8"
   },
   "devDependencies": {
